@@ -1,0 +1,79 @@
+Poly.txt
+
+models new
+
+class Blog < ActiveRecord::Base
+		  has_many :users, through: :owners
+		  has_many :owners, dependent: :destroy
+
+		  has_many :messages, through: :posts
+
+		  has_many :posts, dependent: :destroy
+		  has_many :comments, :as =>:poly, dependent: :destroy
+
+
+		  validates :name, :description, :presence => true
+
+end
+
+
+class User < ActiveRecord::Base
+	  has_many :messages,  dependent: :destroy
+
+	  has_many :posts, dependent: :destroy
+
+
+	  has_many :owners, dependent: :destroy
+	  has_many :blogs, through: :owners
+
+	  has_many :comments, :as => :poly, dependent: :destroy
+
+	  validates :first_name, :last_name, :email, :presence => true
+
+
+end
+
+class Message < ActiveRecord::Base
+  belongs_to :post
+  belongs_to :user
+
+  has_many :comments, :as => :poly, dependent: :destroy
+
+  validates_presence_of :user_id
+  validates_presence_of :post_id
+
+  validates :author, :message, :presence => true
+
+
+end
+
+class Owner < ActiveRecord::Base
+  belongs_to :user
+  belongs_to :blog
+
+  has_many :comments, :as => :poly, dependent: :destroy
+
+    validates_presence_of :blog_id
+    validates_presence_of :user_id
+
+
+end
+
+class Post < ActiveRecord::Base
+  belongs_to :blog
+  belongs_to :user
+  has_many :messages
+  has_many :comments, :as => :poly, dependent: :destroy
+
+  validates_presence_of :user_id
+  validates :title, :content, :presence => true
+
+end
+
+In rails console
+	Post.first.comments.create( note:"this is polyworld")
+	Post.first.destroy
+
+	
+
+
